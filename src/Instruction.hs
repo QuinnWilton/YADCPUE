@@ -133,10 +133,11 @@ decodeSpecialOpcode 0x11 = HWQ
 decodeSpecialOpcode 0x12 = HWI
 
 decodeOperandA :: Word16 -> Operand
-decodeOperandA 0x18 = OpPop
 decodeOperandA op 
-    | op >= 0x20 && op <= 0x3f = OpLiteral op --TODO Figure out what the spec is talking about here
-    | otherwise                  = decodeOperand op
+    | op >= 0x20 && op <= 0x3f = OpLiteral $ op - 0x20
+    | otherwise                = case op of
+        0x18 -> OpPop
+        _ -> decodeOperand op
 
 decodeOperandB :: Word16 -> Operand
 decodeOperandB 0x18 = OpPush
@@ -147,7 +148,7 @@ decodeOperand op
     | op <= 0x07 = OpRegister $ register op
     | op <= 0x0f = OpRegisterPointer $ register $ op - 0x8
     | op <= 0x17 = OpRegisterNextWord $ register $ op - 0x10
-    | otherwise    = case op of
+    | otherwise  = case op of
         0x19 -> OpPeek
         0x1A -> OpPick
         0x1B -> OpSP
