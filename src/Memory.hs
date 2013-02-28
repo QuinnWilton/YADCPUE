@@ -3,7 +3,7 @@ module Memory where
 import Data.Word (Word16)
 
 data Register = A | B | C | X | Y | Z | I | J
-    deriving (Enum, Show, Eq)
+    deriving (Bounded, Enum, Eq, Ord, Show)
 
 data Address
     = Register Register
