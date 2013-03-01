@@ -84,12 +84,14 @@ data Instruction
 --Instructions are of the form aaaaaabbbbbooooo
 decodeInstruction :: Word16 -> Instruction
 decodeInstruction inst = case o of
-    0x0 -> SpecialInstruction (decodeSpecialOpcode b) (decodeOperandA a)
-    _   -> BasicInstruction (decodeBasicOpcode o) (decodeOperandB b) (decodeOperandA a)
+    0x0 -> SpecialInstruction (decodeSpecialOpcode b) opA
+    _   -> BasicInstruction (decodeBasicOpcode o) opB opA
     where
-        o  = 0x1F .&. inst --Bits 0-4
-        b  = 0x1F .&. shiftR inst 5 --Bits 5-9
-        a  = 0x3F .&. shiftR inst 10 --Bits 10-15
+        o   = 0x1F .&. inst --Bits 0-4
+        b   = 0x1F .&. shiftR inst 5 --Bits 5-9
+        a   = 0x3F .&. shiftR inst 10 --Bits 10-15
+        opB = decodeOperandB b
+        opA = decodeOperandA a
 
 decodeBasicOpcode :: Word16 -> BasicOpcode
 decodeBasicOpcode 0x01 = SET
@@ -137,7 +139,7 @@ decodeOperandA op
     | op >= 0x20 && op <= 0x3f = OpLiteral $ op - 0x20
     | otherwise                = case op of
         0x18 -> OpPop
-        _ -> decodeOperand op
+        _    -> decodeOperand op
 
 decodeOperandB :: Word16 -> Operand
 decodeOperandB 0x18 = OpPush
