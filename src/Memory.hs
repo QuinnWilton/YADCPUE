@@ -27,3 +27,9 @@ new = do
     memory <- MV.replicate (0x10001 + fromEnum (maxBound :: Register)) 0x0
     write memory (fromEnum SP) 0xFFFF
     return memory
+
+load :: Memory s -> Address -> ST s Word16
+load a b = a >>= flip MV.read (fromAddress b)
+
+store :: Memory s -> Address -> Word16 -> ST s ()
+store a b c = a >>= \x -> MV.write x (fromAddress b) c
