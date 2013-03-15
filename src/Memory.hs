@@ -29,7 +29,7 @@ new = do
     return $ Memory memory
 
 load :: Memory s -> Address -> ST s Word16
-load (Memory a) b = MV.read a (fromAddress b)
+load (Memory a) = MV.read a . fromAddress
 
 store :: Memory s -> Address -> Word16 -> ST s ()
-store (Memory a) b c = MV.write a (fromAddress b) c
+store (Memory a) = MV.write a . fromAddress
