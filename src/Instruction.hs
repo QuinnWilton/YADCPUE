@@ -122,7 +122,6 @@ decodeBasicOpcode 0x1B = SBX
 decodeBasicOpcode 0x1E = STI
 decodeBasicOpcode 0x1F = STD
 
-
 decodeSpecialOpcode :: Word16 -> SpecialOpcode
 decodeSpecialOpcode 0x01 = JSR
 decodeSpecialOpcode 0x08 = INT
