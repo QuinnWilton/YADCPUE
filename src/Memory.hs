@@ -25,11 +25,11 @@ fromAddress (Register r) = 0x10000 + fromEnum r
 new :: ST s (Memory s)
 new = do
     memory <- MV.replicate (0x10000 + fromEnum (maxBound :: Register)) 0x0
-    store (Memory memory) (Register SP) 0xFFFF
+    Memory.write (Memory memory) (Register SP) 0xFFFF
     return $ Memory memory
 
-load :: Memory s -> Address -> ST s Word16
-load (Memory a) = MV.read a . fromAddress
+read :: Memory s -> Address -> ST s Word16
+read (Memory a) = MV.read a . fromAddress
 
-store :: Memory s -> Address -> Word16 -> ST s ()
-store (Memory a) = MV.write a . fromAddress
+write :: Memory s -> Address -> Word16 -> ST s ()
+write (Memory a) = MV.write a . fromAddress
