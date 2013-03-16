@@ -1,7 +1,7 @@
 module Memory where
 
 import Data.Word (Word16)
-import Data.Vector.Mutable as MV
+import qualified Data.Vector.Mutable as MV
 import Control.Monad.ST
 
 data Register = A | B | C | X | Y | Z | I | J | SP | PC | EX | IA
@@ -25,7 +25,7 @@ fromAddress (Register r) = 0x10000 + fromEnum r
 new :: ST s (Memory s)
 new = do
     memory <- MV.replicate (0x10000 + fromEnum (maxBound :: Register)) 0x0
-    Memory.write (Memory memory) (Register SP) 0xFFFF
+    write (Memory memory) (Register SP) 0xFFFF
     return $ Memory memory
 
 read :: Memory s -> Address -> ST s Word16
