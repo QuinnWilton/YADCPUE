@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, Rank2Types #-}
 module Emulator.IO where
 
 import Control.Monad.Reader (ReaderT, ask, runReaderT)
