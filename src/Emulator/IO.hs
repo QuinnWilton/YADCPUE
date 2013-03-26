@@ -1,9 +1,9 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, Rank2Types #-}
 module Emulator.IO where
 
-import Control.Monad.Reader (ask, ReaderT, runReaderT)
+import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.ST (RealWorld, stToIO)
-import Control.Monad.Trans (lift, MonadIO)
+import Control.Monad.Trans (MonadIO, lift)
 
 import Emulator.Monad
 import Memory (read, write, new, Memory)
