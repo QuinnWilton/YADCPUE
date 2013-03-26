@@ -1,8 +1,8 @@
 module Emulator.IO where
 
-import Control.Monad.Reader (ReaderT, ask, runReaderT)
+import Control.Monad.Reader (ask, ReaderT, runReaderT)
 import Control.Monad.ST (RealWorld, stToIO)
-import Control.Monad.Trans (MonadIO, lift)
+import Control.Monad.Trans (lift, MonadIO)
 
 import Emulator.Monad
 import Memory (read, write, new, Memory)
