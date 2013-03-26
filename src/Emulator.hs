@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, RankNTypes #-}
 module Emulator where
 
 import Instruction
