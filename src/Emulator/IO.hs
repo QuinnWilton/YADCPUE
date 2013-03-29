@@ -6,7 +6,7 @@ import Control.Monad.ST (RealWorld, stToIO)
 import Control.Monad.Trans (lift, MonadIO)
 
 import Emulator.Monad
-import Memory (read, write, new, Memory)
+import Memory
 
 newtype IOEmulator a = IOEmulator (ReaderT (Memory RealWorld) IO a)
     deriving (Monad, MonadIO)
@@ -18,6 +18,9 @@ instance Emulator IOEmulator where
     store address word = IOEmulator $ do
         memory <- ask
         lift $ stToIO $ Memory.write memory address word
+    swap address address' = IOEmulator $ do
+        memory <- ask
+        lift $ stToIO $ Memory.swap memory address address'
 
 runIOEmulator :: IOEmulator a -> IO a
 runIOEmulator (IOEmulator reader) = do

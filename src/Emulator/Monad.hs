@@ -6,3 +6,4 @@ import Memory (Address)
 class Monad m => Emulator m where
     load  :: Address -> m Word16
     store :: Address -> Word16 -> m ()
+    swap  :: Address -> Address -> m ()
