@@ -9,9 +9,14 @@ import Control.Monad.Trans (liftIO)
 
 main :: IO ()
 main = do
-    x <- getLine
     runIOEmulator $ do
-        performOperation $ BasicInstruction SET (OpRegister A) (OpLiteral 65)
-        performOperation $ BasicInstruction SET OpPush (OpRegister A)
-        liftIO $ print x
-    return ()
+        performOperation $ BasicInstruction SET OpPush (OpLiteral 10)
+        performOperation $ BasicInstruction SET OpPush (OpLiteral 65532)
+        printRegisters performIO
+        printRange performIO 0xFFF0 0xFFFF
+        performOperation $ BasicInstruction SET (OpRegister A) OpPop
+        performOperation $ BasicInstruction SET (OpRegister B) OpPop
+        performOperation $ BasicInstruction SET (OpRegister C) OpPop
+        printRegisters performIO
+        printRange performIO 0xFFF0 0xFFFF
+    where performIO = liftIO . putStrLn
