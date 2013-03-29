@@ -9,8 +9,37 @@ import Data.Bits
 import Data.Word (Word16, Word32)
 import Data.Int (Int16)
 import Data.ByteString (ByteString)
-import Data.ByteString as B hiding (ByteString)
+import qualified Data.ByteString as B hiding (ByteString)
 import Debug.Trace
+import Text.Printf (printf)
+
+printMem :: Emulator m => (String -> m ()) -> m ()
+printMem op = loop 0
+    where
+        loop n
+            | n < z = load (Word n) >>= disp n >> loop (n + 1)
+            | otherwise = load (Word z) >>= disp z
+            where
+                disp x y = op $ show (Word x) ++ " => " ++ show y
+                z = 0xFFFF
+
+printAddress :: Emulator m => (String -> m ()) -> Address -> m ()
+printAddress op addr = load addr >>= disp addr
+    where disp x y = op $ show x ++ " => " ++ show y
+
+printRange :: Emulator m => (String -> m ()) -> Word16 -> Word16 -> m ()
+printRange op a b = mapM (load . Word) [a..b] >>= op . unwords . map showHexWord
+
+printRegisters :: Emulator m => (String -> m ()) -> m ()
+printRegisters op = mapM load regAddr >>= 
+                    op . init . unwords . zipWith (\x y -> show x ++ ": " ++ show y ++ ",") regAddr
+    where regAddr = map Register ([minBound..maxBound] :: [Register])
+
+showHexWord :: Word16 -> String
+showHexWord a = printf "%04X" a
+
+showDecWord :: Word16 -> String
+showDecWord a = printf "%05d" a
 
 -- Note:  Todo: Implement failure case for Instruction Operation (Literal x), Operand
 loadAddress :: Emulator m => Operand -> m Address
@@ -72,9 +101,13 @@ loadValue OpPop                  =
     do
         x <- load $ Register SP
         y <- load $ Word x
-        store (Word x) 0
-        store (Register SP) $ x + 1
-        return y
+        if x == 0 then do
+            z <- load (Register PC)
+            trace ("Stack underflow exception at execution position 0x" ++ showHexWord z) (return 0)
+        else do
+            store (Word x) 0
+            store (Register SP) $ x + 1
+            return y
 
 loadValue OpPeek            = load (Register SP) >>= load . Word
 loadValue OpPick            =
