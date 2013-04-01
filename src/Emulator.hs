@@ -11,6 +11,7 @@ import Data.Int (Int16)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS hiding (ByteString)
 import Debug.Trace
+import Text.Printf (printf)
 
 showDecWord :: Word16 -> String
 showDecWord = printf "%05d"

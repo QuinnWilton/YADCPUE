@@ -13,6 +13,7 @@ main = do
     x <- BS.readFile "blargh"
     runIOEmulator $ do
         loadProgram x
+        --runProgram
         printRange performIO 0x0 0x64
 
     where performIO = liftIO . putStrLn
