@@ -9,9 +9,14 @@ import Data.Bits
 import Data.Word (Word16, Word32)
 import Data.Int (Int16)
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as B hiding (ByteString)
+import qualified Data.ByteString as BS hiding (ByteString)
 import Debug.Trace
-import Text.Printf (printf)
+
+showDecWord :: Word16 -> String
+showDecWord = printf "%05d"
+
+showHexWord :: Word16 -> String
+showHexWord = printf "%04X"
 
 printMem :: Emulator m => (String -> m ()) -> m ()
 printMem op = loop 0
@@ -35,11 +40,18 @@ printRegisters op = mapM load regAddr >>=
                     op . init . unwords . zipWith (\x y -> show x ++ ": " ++ show y ++ ",") regAddr
     where regAddr = map Register ([minBound..maxBound] :: [Register])
 
-showHexWord :: Word16 -> String
-showHexWord a = printf "%04X" a
-
-showDecWord :: Word16 -> String
-showDecWord a = printf "%05d" a
+loadProgram :: Emulator m => ByteString -> m () 
+loadProgram prog = lp prog 0 
+    where 
+      lp p n 
+        | n >= BS.length p   = return () 
+        | otherwise  = do 
+            let a    = fromIntegral $ BS.index p n
+                b    = fromIntegral $ BS.index p (n + 1) 
+                w    = b + shiftL a 8 
+                addr = fromIntegral $ n `div` 2 
+            store (Word addr) w 
+            lp p (n + 2)
 
 -- Note:  Todo: Implement failure case for Instruction Operation (Literal x), Operand
 loadAddress :: Emulator m => Operand -> m Address
@@ -433,6 +445,8 @@ performOperation (SpecialInstruction HWI b) =
     do
         x <- loadValue b
         hwSendINT x
+
+performOperation (UnknownInstruction b) = return ()
 
 {- Placeholder and information
 mainBody :: Emulator m => m ()

@@ -32,7 +32,8 @@ data BasicOpcode
     | SBX
     | STI
     | STD
-    deriving (Show)
+    | UKB
+    deriving (Show, Eq)
 
 data SpecialOpcode
     = JSR
@@ -44,7 +45,8 @@ data SpecialOpcode
     | HWN
     | HWQ
     | HWI
-    deriving (Show)
+    | UKS
+    deriving (Show, Eq)
 
 data Operand
     = OpRegister Register
@@ -79,13 +81,22 @@ instance Show Operand where
 data Instruction
     = BasicInstruction BasicOpcode Operand Operand
     | SpecialInstruction SpecialOpcode Operand
+    | UnknownInstruction Word16
     deriving (Show)
 
 --Instructions are of the form aaaaaabbbbbooooo
 decodeInstruction :: Word16 -> Instruction
 decodeInstruction inst = case o of
-    0x0 -> SpecialInstruction (decodeSpecialOpcode b) opA
-    _   -> BasicInstruction (decodeBasicOpcode o) opB opA
+    0x0 -> if chk == UKS then
+                UnknownInstruction inst
+            else
+                SpecialInstruction chk opA
+            where chk = decodeSpecialOpcode b
+    _   -> if chk == UKB then
+                UnknownInstruction inst
+            else
+                BasicInstruction chk opB opA
+            where chk = decodeBasicOpcode o
     where
         o   = 0x1F .&. inst --Bits 0-4
         b   = 0x1F .&. shiftR inst 5 --Bits 5-9
@@ -121,6 +132,7 @@ decodeBasicOpcode 0x1A = ADX
 decodeBasicOpcode 0x1B = SBX
 decodeBasicOpcode 0x1E = STI
 decodeBasicOpcode 0x1F = STD
+decodeBasicOpcode _    = UKB
 
 
 decodeSpecialOpcode :: Word16 -> SpecialOpcode
@@ -133,6 +145,7 @@ decodeSpecialOpcode 0x0C = IAQ
 decodeSpecialOpcode 0x10 = HWN
 decodeSpecialOpcode 0x11 = HWQ
 decodeSpecialOpcode 0x12 = HWI
+decodeSpecialOpcode _    = UKS
 
 decodeOperandA :: Word16 -> Operand
 decodeOperandA op 
